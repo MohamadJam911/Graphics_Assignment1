@@ -1,0 +1,58 @@
+Assignment 1 - Engine Changes Summary
+=====================================
+
+ADDED
+-----
+src/ImageProcessing.h / src/ImageProcessing.cpp
+  Why: keeps all the image filters in one place, separate from the engine.
+  - GrayImage (struct)   - holds a grayscale image (width, height, pixels).
+  - LoadGrayscale()      - loads Lenna.png and converts it to grayscale.
+  - Canny()              - edge detection (Gaussian, Sobel, Non-Max Suppression,
+                           Double Threshold + Hysteresis).
+  - Halftone()           - turns every pixel into a 2x2 black/white block (512x512).
+  - FloydSteinberg()     - dithering to 16 gray levels.
+  - GaussianFilter()     - Gaussian blur (sigma 1.4), saved as Gaussian.png.
+  - Laplacian()          - edge detection with Laplacian of Gaussian (zero crossings),
+                           saved as Laplacian.png.
+    Why: extra ("Impress me") - both Gaussian and Laplacian filters, to compare
+    with Canny.
+  - Downsample2x()       - shrinks the 512x512 halftone to 256x256 for the window.
+  - SavePNG(), SaveTXT() - write the output .png and .txt files.
+
+src/res/textures/Lenna.png
+  Why: the input image. The Makefile already copies this folder to bin/res.
+
+src/res/textures/extra/ (astronaut.png, camera.png, chelsea.png)
+  Why: extra images to show Canny and Laplacian results on other pictures.
+  Results are saved to the ExtraImages folder.
+  Source: scikit-image sample images (astronaut - public domain, NASA;
+  camera - CC0, Lav Varshney; chelsea - CC0, Stefan van der Walt).
+
+MODIFIED
+--------
+src/Texture.h / src/Texture.cpp
+  - Added a second constructor: Texture(width, height, grayData).
+    Why: the original only loads images from a file; this one creates a
+    texture straight from the processed image in memory.
+
+src/main.cpp
+  Added:
+  - ProcessedImages (struct) - holds all the results.
+  - FindProjectRoot()        - finds the project folder (outputs are saved there).
+  - FindInputImage()         - finds Lenna.png.
+  - RunImageProcessing()     - runs the 4 filters, prints their run times and saves
+                               the 4 PNG + 4 TXT files, the Canny stages
+                               (CannyStages folder), Gaussian.png and Laplacian.png.
+  - RunExtraImages()         - runs Canny and Laplacian on every image in the
+                               extra folder (results in the ExtraImages folder).
+  - "--no-window" argument   - saves the files without opening the window.
+
+  Changed:
+  - Window size 800x800 -> 512x512 (not resizable).
+    Why: each image is shown at exactly 256x256.
+  - Quad colors changed to white and texture coordinates flipped.
+    Why: so the images are not tinted or upside down.
+  - The single white.png texture was replaced with textures created from the
+    results, and the quad is drawn 4 times (2x2 grid).
+  - SPACE key switches the window to the 4 Canny stages.
+    Why: for debugging Canny.

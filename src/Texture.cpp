@@ -42,6 +42,29 @@ Texture::Texture(const std::string& filepath)
     }
 }
 
+Texture::Texture(int width, int height, const unsigned char* grayData)
+    : m_RendererID(0), m_Filepath(""), m_LocalBuffer(nullptr), m_Width(width), m_Height(height), m_Components(1)
+{
+    GLCall(glGenTextures(1, &m_RendererID));
+    GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
+
+    // Nearest filtering
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+    // Single channel upload
+    GLCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_Width, m_Height, 0, GL_RED, GL_UNSIGNED_BYTE, grayData));
+
+    // Red channel as gray
+    GLint swizzle[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+    GLCall(glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle));
+
+    GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
 Texture::~Texture()
 {
     GLCall(glDeleteTextures(1, &m_RendererID));

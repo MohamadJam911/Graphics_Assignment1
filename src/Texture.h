@@ -14,7 +14,13 @@ class Texture
         int m_Width, m_Height, m_Components;
     public:
         Texture(const std::string& filepath);
+        // From grayscale buffer
+        Texture(int width, int height, const unsigned char* grayData);
         ~Texture();
+
+        // No copying
+        Texture(const Texture&) = delete;
+        Texture& operator=(const Texture&) = delete;
 
         void Bind(unsigned int slot = 0) const;
         void Unbind() const;
